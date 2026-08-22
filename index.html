@@ -73,6 +73,15 @@
   }
   .theme-toggle:hover{background:var(--surface-alt);}
   main{max-width:1400px;margin:0 auto;padding:32px 24px 80px;}
+  nav.tabs{display:flex;gap:2px;background:var(--surface);padding:0 24px;border-bottom:1px solid var(--brand-gray-light);transition:background .2s ease;}
+  nav.tabs button{
+    background:transparent;border:none;color:var(--text-secondary);padding:14px 18px;font-size:14px;font-weight:600;
+    cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
+  }
+  nav.tabs button.active{color:var(--text-primary);border-bottom:3px solid var(--brand-coral);}
+  nav.tabs button[data-tab="admin"]{font-size:18px;margin-left:auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
   .card{background:var(--surface);border:1px solid var(--brand-gray-light);border-radius:10px;padding:26px;margin-bottom:18px;transition:background .2s ease, border-color .2s ease;}
   .card h2{font-family:var(--font-display);font-weight:700;font-size:18px;margin:0 0 4px;color:var(--text-primary);}
   .card .sub{font-size:13px;color:var(--text-secondary);margin:0 0 20px;}
@@ -114,18 +123,13 @@
   .dot.ok{background:var(--ok);}
   .dot.error{background:var(--warn);}
   .dot.loading{background:#c9a227;}
-  .modal-overlay{
-    position:fixed;inset:0;background:var(--overlay-bg);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
-  }
-  .modal-overlay.open{display:flex;}
-  .modal{background:var(--surface);border-radius:10px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto;padding:26px;transition:background .2s ease;}
-  .modal h2{font-family:var(--font-display);font-weight:700;color:var(--text-primary);margin-top:0;}
-  .admin-row{display:grid;grid-template-columns:1.2fr 1fr 1.4fr 1fr 1fr .8fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--brand-gray-light);font-size:13px;}
+  .admin-row{display:grid;grid-template-columns:1.2fr 1fr 1.4fr 1fr 1fr .8fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--brand-gray-light);font-size:13px;min-width:820px;}
+  .admin-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .admin-panel-header h2{margin:0;}
   .admin-row input{padding:6px 8px;font-size:13px;}
   .admin-header{font-size:11px;text-transform:uppercase;color:var(--text-primary);font-weight:700;letter-spacing:.4px;}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-  @media (max-width:640px){.grid3{grid-template-columns:1fr;} .admin-row{grid-template-columns:1fr;}}
-  .close-x{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-secondary);}
+  @media (max-width:640px){.grid3{grid-template-columns:1fr;}}
   .table-scroll{overflow-x:auto;margin-bottom:4px;-webkit-overflow-scrolling:touch;}
   .rows-table{width:100%;border-collapse:collapse;table-layout:fixed;}
   .rows-table th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-primary);text-align:left;padding:6px 6px;border-bottom:2px solid var(--brand-gray-light);}
@@ -149,12 +153,17 @@
   <div class="topbar-right">
     <span class="tag">Guías de despacho · Exportación de salmón</span>
     <button class="theme-toggle" id="btn-theme-toggle" title="Cambiar tema">🌙</button>
-    <button class="admin-link" id="btn-open-admin">⚙ Administración</button>
   </div>
 </div>
 
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="calculadora">Calculadora</button>
+  <button class="tab-btn" data-tab="admin" title="Administración">⚙</button>
+</nav>
+
 <main>
 
+  <section class="panel active" id="panel-calculadora">
   <div class="card">
     <h2>Pedido de venta</h2>
     <p class="sub">Agrega una fila por cada producto del pedido. La tara de cada fila se aplica automáticamente según la combinación elegida — no es editable aquí.</p>
@@ -184,26 +193,23 @@
       </div>
     </div>
   </div>
+  </section>
 
-</main>
+  <section class="panel" id="panel-admin">
 
-<!-- MODAL ADMINISTRACIÓN -->
-<div class="modal-overlay" id="admin-overlay">
-  <div class="modal">
-    <button class="close-x" id="btn-close-admin">✕</button>
-
-    <div id="admin-login">
+    <div id="admin-login" class="card" style="max-width:420px;margin:40px auto;">
       <h2>Iniciar sesión de administrador</h2>
-      <p class="sub">Esta cuenta es independiente de tu cuenta Microsoft 365 — es exclusiva de esta app.</p>
       <div class="field"><label>Correo</label><input type="email" id="admin-email"></div>
       <div class="field"><label>Contraseña</label><input type="password" id="admin-password"></div>
       <button class="btn" id="btn-login">Ingresar</button>
       <p class="status" id="login-error" style="color:var(--warn);"></p>
     </div>
 
-    <div id="admin-panel" style="display:none;">
-      <h2>Administración de taras <span class="status" id="admin-count"></span></h2>
-      <button class="btn secondary small" id="btn-logout" style="float:right;margin-top:-40px;">Cerrar sesión</button>
+    <div id="admin-panel" class="card" style="display:none;">
+      <div class="admin-panel-header">
+        <h2>Administración de taras <span class="status" id="admin-count"></span></h2>
+        <button class="btn secondary small" id="btn-logout">Cerrar sesión</button>
+      </div>
       <p class="sub">Los cambios se ven de inmediato en la calculadora para todos los usuarios.</p>
 
       <div class="source-bar" id="source-bar" style="margin-bottom:20px;">
@@ -215,7 +221,9 @@
         <button class="btn" id="btn-seed">Importar las 54 combinaciones desde el Excel original</button>
       </div>
 
-      <div id="admin-list"></div>
+      <div class="table-scroll">
+        <div id="admin-list"></div>
+      </div>
 
       <h2 style="margin-top:26px;font-size:15px;">Agregar nueva tara</h2>
       <div class="grid3">
@@ -233,8 +241,9 @@
       </div>
       <button class="btn" id="btn-add-tara">Agregar tara</button>
     </div>
-  </div>
-</div>
+  </section>
+
+</main>
 
 <script>
 /* ============================================================
@@ -485,12 +494,14 @@ document.getElementById('btn-add-row').addEventListener('click', createRow);
 createRow();
 
 
-// ---------- Modal Administración ----------
-document.getElementById('btn-open-admin').addEventListener('click', ()=>{
-  document.getElementById('admin-overlay').classList.add('open');
-});
-document.getElementById('btn-close-admin').addEventListener('click', ()=>{
-  document.getElementById('admin-overlay').classList.remove('open');
+// ---------- Pestañas ----------
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+  });
 });
 
 document.getElementById('btn-login').addEventListener('click', ()=>{
